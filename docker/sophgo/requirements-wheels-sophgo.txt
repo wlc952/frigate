@@ -1,0 +1,1 @@
+sophon-sail @ https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/sophon_arm-3.7.0-py3-none-any.whl

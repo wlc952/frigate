@@ -166,3 +166,5 @@ unraid
 hideable
 healthcheck
 keepalive
+sophon
+sophgo

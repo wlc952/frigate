@@ -5,7 +5,7 @@ title: Object Detectors
 
 # Officially Supported Detectors
 
-Frigate provides the following builtin detector types: `cpu`, `edgetpu`, `openvino`, `tensorrt`, and `rknn`. By default, Frigate will use a single CPU detector. Other detectors may require additional configuration as described below. When using multiple detectors they will run in dedicated processes, but pull from a common queue of detection requests from across all cameras.
+Frigate provides the following builtin detector types: `cpu`, `edgetpu`, `openvino`, `tensorrt`, `rknn`, and `sophgo`. By default, Frigate will use a single CPU detector. Other detectors may require additional configuration as described below. When using multiple detectors they will run in dedicated processes, but pull from a common queue of detection requests from across all cameras.
 
 ## CPU Detector (not recommended)
 
@@ -160,7 +160,7 @@ model:
 
 :::warning
 
-The pre-trained YOLO-NAS weights from DeciAI are subject to their license and can't be used commercially. For more information, see: https://docs.deci.ai/super-gradients/latest/LICENSE.YOLONAS.html
+The pre-trained YOLO-NAS weights from DeciAI are subject to their license and can't be used commercially. For more information, see: <https://docs.deci.ai/super-gradients/latest/LICENSE.YOLONAS.html>
 
 :::
 
@@ -198,7 +198,7 @@ To use the TensorRT detector, make sure your host system has the [nvidia-contain
 
 There are improved capabilities in newer GPU architectures that TensorRT can benefit from, such as INT8 operations and Tensor cores. The features compatible with your hardware will be optimized when the model is converted to a trt file. Currently the script provided for generating the model provides a switch to enable/disable FP16 operations. If you wish to use newer features such as INT8 optimization, more work is required.
 
-#### Compatibility References:
+#### Compatibility References
 
 [NVIDIA TensorRT Support Matrix](https://docs.nvidia.com/deeplearning/tensorrt/archives/tensorrt-841/support-matrix/index.html)
 
@@ -368,7 +368,7 @@ The correct labelmap must be loaded for each model. If you use a custom model (s
 
 :::warning
 
-The pre-trained YOLO-NAS weights from DeciAI are subject to their license and can't be used commercially. For more information, see: https://docs.deci.ai/super-gradients/latest/LICENSE.YOLONAS.html
+The pre-trained YOLO-NAS weights from DeciAI are subject to their license and can't be used commercially. For more information, see: <https://docs.deci.ai/super-gradients/latest/LICENSE.YOLONAS.html>
 
 :::
 
@@ -393,3 +393,39 @@ $ cat /sys/kernel/debug/rknpu/load
 
 - All models are automatically downloaded and stored in the folder `config/model_cache/rknn_cache`. After upgrading Frigate, you should remove older models to free up space.
 - You can also provide your own `.rknn` model. You should not save your own models in the `rknn_cache` folder, store them directly in the `model_cache` folder or another subfolder. To convert a model to `.rknn` format see the `rknn-toolkit2` (requires a x86 machine). Note, that there is only post-processing for the supported models.
+
+## Sophgo TPU
+
+### Prerequisites
+
+You can refer to the [tutorial](https://github.com/wlc952/frigate_in_sophgo_bm1684x.) in github. Currently, only [Yolov8](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/yolov8n_320_1684x_f32.bmodel) is supported as object detection model.
+
+### Docker run
+
+When creating a container, make sure to mount the following:
+
+```yaml 
+devices:
+  - /dev/jpu:/dev/jpu
+  - /dev/vpu:/dev/vpu
+  - /dev/bm-tpu0:/dev/bm-tpu0
+volumes:
+  - /opt/sophon:/opt/sophon
+  - /etc/profile.d:/etc/profile.d
+  - /usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu
+  - /etc/ld.so.conf.d:/etc/ld.so.conf.d
+  - ./config:/config
+  - ./storage:/media/frigate
+```
+
+### Configuration
+
+This `config.yml` shows all relevant options to configure the detector and explains them.
+
+```yaml
+detectors:                                          # required
+  sophgo:                                           # required
+    type: sophgo                                    # required
+    model:                                          # required
+      path: /config/model_cache/yolov8n_320.bmodel  # required
+```
